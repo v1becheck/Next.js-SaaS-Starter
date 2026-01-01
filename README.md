@@ -24,27 +24,27 @@ The architecture follows a **layered defense strategy** with clear boundaries:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Client Layer                          │
-│  (Browser) - Token storage, automatic refresh handling   │
+│                    Client Layer                         │
+│  (Browser) - Token storage, automatic refresh handling  │
 └────────────────────┬────────────────────────────────────┘
                      │
                      │ HTTPS + JWT Bearer Tokens
                      │
 ┌────────────────────▼────────────────────────────────────┐
-│              Next.js Edge Middleware                      │
-│  • JWT validation (stateless, fast)                      │
-│  • RBAC enforcement (role-based access control)           │
-│  • Request context injection (x-user-id, x-user-role)    │
+│              Next.js Edge Middleware                    │
+│  • JWT validation (stateless, fast)                     │
+│  • RBAC enforcement (role-based access control)         │
+│  • Request context injection (x-user-id, x-user-role)   │
 └────────────────────┬────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────┐
-│              API Route Layer                              │
-│  • createApiHandler wrapper:                              │
-│    - Rate limiting (per-route configurable)              │
-│    - Input validation (Zod schemas)                      │
-│    - Error handling (custom error classes)             │
-│    - Request logging (structured, with duration)          │
-│  • Business logic separation                             │
+│              API Route Layer                            │
+│  • createApiHandler wrapper:                            │
+│    - Rate limiting (per-route configurable)             │
+│    - Input validation (Zod schemas)                     │
+│    - Error handling (custom error classes)              │
+│    - Request logging (structured, with duration)        │
+│  • Business logic separation                            │
 └────────────────────┬────────────────────────────────────┘
                      │
         ┌────────────┼────────────┬────────────┐
@@ -697,6 +697,24 @@ npm run dev
 **Test Users** (from seed):
 - Admin: `admin@example.com` / `admin123`
 - User: `user@example.com` / `user123`
+
+---
+
+## Architecture Diagrams
+
+Comprehensive Mermaid diagrams are available in [`DIAGRAMS.md`](./DIAGRAMS.md), including:
+
+- High-level system architecture
+- Authentication and token refresh flows
+- Database entity relationships
+- Stripe integration flows
+- Security layers architecture
+- Scalability evolution
+- Request processing pipeline
+- Component dependencies
+- And more...
+
+All diagrams are ready to view on GitHub, VS Code, or https://mermaid.live.
 
 ---
 
