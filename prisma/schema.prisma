@@ -1,0 +1,100 @@
+// Prisma schema for Production SaaS Starter
+// Using PostgreSQL for production-ready features (transactions, concurrent writes, etc.)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User roles enum - simple RBAC system
+// Tradeoff: Using enum for type safety. Alternative: string field (more flexible but less safe)
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// Subscription status enum
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+  INCOMPLETE
+}
+
+// User model - core authentication and authorization entity
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  password      String    // Required for JWT auth
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  refreshTokens RefreshToken[]
+  subscription  Subscription?
+  featureFlags  UserFeatureFlag[]
+
+  @@map("users")
+}
+
+// Refresh token model for JWT refresh token rotation
+// Tradeoff: Storing refresh tokens in DB allows revocation and rotation.
+// Alternative: Stateless refresh tokens (simpler but can't revoke)
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// Subscription model - Stripe subscription data
+// Tradeoff: Storing subscription data locally for fast access.
+// We sync with Stripe webhooks to keep data consistent.
+model Subscription {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  stripeCustomerId      String             @unique
+  stripeSubscriptionId  String?            @unique
+  stripePriceId         String?            // Monthly or yearly price ID
+  status                SubscriptionStatus
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean           @default(false)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+  @@map("subscriptions")
+}
+
+// Feature flags per user
+// Tradeoff: Per-user feature flags allow granular control.
+// Alternative: Role-based flags (simpler but less flexible)
+model UserFeatureFlag {
+  id        String   @id @default(cuid())
+  userId    String
+  flagKey   String
+  enabled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, flagKey])
+  @@index([userId])
+  @@map("user_feature_flags")
+}
