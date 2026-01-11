@@ -366,7 +366,7 @@ This document provides detailed architecture descriptions for generating system 
 │  │                    ENUMS                                  │ │
 │  │  UserRole: USER | ADMIN                                   │ │
 │  │  SubscriptionStatus: ACTIVE | CANCELED | PAST_DUE |       │ │
-│  │                  TRIALING | INCOMPLETE                    │ │
+│  │                      TRIALING | INCOMPLETE                │ │
 │  └───────────────────────────────────────────────────────────┘ │
 └────────────────────────────────────────────────────────────────┘
 
