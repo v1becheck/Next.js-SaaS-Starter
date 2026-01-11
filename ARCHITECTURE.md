@@ -10,54 +10,54 @@ This document provides detailed architecture descriptions for generating system 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT LAYER                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   Browser    │  │  Mobile App  │  │  API Client  │          │
-│  │  (React)    │  │  (Future)    │  │  (Future)    │          │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
-│         │                  │                  │                  │
+│                         CLIENT LAYER                            │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐         │
+│  │   Browser    │   │  Mobile App  │   │  API Client  │         │
+│  │  (React)     │   │  (Future)    │   │  (Future)    │         │
+│  └──────┬───────┘   └──────┬───────┘   └──────┬───────┘         │
+│         │                  │                  │                 │
 │         └──────────────────┼──────────────────┘                 │
-│                            │                                     │
-│                    HTTPS + JWT Bearer Tokens                     │
-└────────────────────────────┼─────────────────────────────────────┘
-                              │
-┌─────────────────────────────▼─────────────────────────────────────┐
-│                    NEXT.JS APPLICATION LAYER                       │
+│                            │                                    │
+│                    HTTPS + JWT Bearer Tokens                    │
+└────────────────────────────┼────────────────────────────────────┘
+                             │
+┌────────────────────────────▼─────────────────────────────────────┐
+│                    NEXT.JS APPLICATION LAYER                     │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │              EDGE MIDDLEWARE (middleware.ts)                  │ │
-│  │  • JWT Token Validation (stateless)                           │ │
-│  │  • RBAC Enforcement (role checks)                            │ │
+│  │              EDGE MIDDLEWARE (middleware.ts)                │ │
+│  │  • JWT Token Validation (stateless)                         │ │
+│  │  • RBAC Enforcement (role checks)                           │ │
 │  │  • Request Context Injection (x-user-id, x-user-role)       │ │
 │  └─────────────────────────────────────────────────────────────┘ │
-│                              │                                     │
-│  ┌───────────────────────────▼───────────────────────────────────┐ │
-│  │              API ROUTE HANDLER (createApiHandler)             │ │
-│  │  • Rate Limiting (per-route config)                           │ │
-│  │  • Input Validation (Zod schemas)                             │ │
-│  │  • Error Handling (custom error classes)                      │ │
-│  │  • Request Logging (structured, with duration)               │ │
-│  └───────────────────────────┬───────────────────────────────────┘ │
-│                              │                                     │
-│  ┌───────────────────────────▼───────────────────────────────────┐ │
-│  │                    BUSINESS LOGIC LAYER                       │ │
-│  │  • Authentication Logic (lib/auth.ts)                        │ │
-│  │  • RBAC Logic (lib/rbac.ts)                                  │ │
-│  │  • Feature Flags (lib/feature-flags.ts)                      │ │
-│  │  • Stripe Integration (lib/stripe.ts)                        │ │
-│  └───────────────────────────┬───────────────────────────────────┘ │
-└──────────────────────────────┼─────────────────────────────────────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        │                      │                        │
-┌───────▼──────┐    ┌──────────▼──────────┐   ┌───────▼──────┐
-│  PostgreSQL  │    │   Stripe API        │   │   Redis      │
-│   Database   │    │   (External)        │   │  (Future)    │
-│              │    │                     │   │              │
-│ • Users      │    │ • Checkout          │   │ • Rate Limit │
-│ • Tokens     │    │ • Subscriptions     │   │ • Caching    │
-│ • Subscriptions│   │ • Webhooks          │   │              │
-│ • Feature Flags│  │                     │   │              │
-└──────────────┘    └─────────────────────┘   └──────────────┘
+│                              │                                   │
+│  ┌───────────────────────────▼─────────────────────────────────┐ │
+│  │              API ROUTE HANDLER (createApiHandler)           │ │
+│  │  • Rate Limiting (per-route config)                         │ │
+│  │  • Input Validation (Zod schemas)                           │ │
+│  │  • Error Handling (custom error classes)                    │ │
+│  │  • Request Logging (structured, with duration)              │ │
+│  └───────────────────────────┬─────────────────────────────────┘ │
+│                              │                                   │
+│  ┌───────────────────────────▼─────────────────────────────────┐ │
+│  │                    BUSINESS LOGIC LAYER                     │ │
+│  │  • Authentication Logic (lib/auth.ts)                       │ │
+│  │  • RBAC Logic (lib/rbac.ts)                                 │ │
+│  │  • Feature Flags (lib/feature-flags.ts)                     │ │
+│  │  • Stripe Integration (lib/stripe.ts)                       │ │
+│  └─────────────────────────────┬───────────────────────────────┘ │
+└────────────────────────────────┼─────────────────────────────────┘
+                                 │
+        ┌────────────────────────┼──────────────────────┐
+        │                        │                      │
+┌───────▼────────┐    ┌──────────▼──────────┐   ┌───────▼──────┐
+│  PostgreSQL    │    │   Stripe API        │   │   Redis      │
+│   Database     │    │   (External)        │   │  (Future)    │
+│                │    │                     │   │              │
+│ • Users        │    │ • Checkout          │   │ • Rate Limit │
+│ • Tokens       │    │ • Subscriptions     │   │ • Caching    │
+│ • Subscriptions│    │ • Webhooks          │   │              │
+│ • Feature Flags│    │                     │   │              │
+└────────────────┘    └─────────────────────┘   └──────────────┘
 ```
 
 ---
@@ -67,10 +67,10 @@ This document provides detailed architecture descriptions for generating system 
 ### Application Components
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                      NEXT.JS APP ROUTER                          │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                  │
+┌────────────────────────────────────────────────────────────────┐
+│                      NEXT.JS APP ROUTER                        │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │                    MIDDLEWARE LAYER                      │  │
 │  │  File: middleware.ts                                     │  │
@@ -79,64 +79,64 @@ This document provides detailed architecture descriptions for generating system 
 │  │  • Role Validation (lib/rbac.ts)                         │  │
 │  │  • Context Injection                                     │  │
 │  └──────────────────────────────────────────────────────────┘  │
-│                            │                                     │
-│  ┌─────────────────────────▼──────────────────────────────────┐  │
-│  │                  API ROUTE LAYER                           │  │
-│  │                                                             │  │
-│  │  ┌────────────────────────────────────────────────────┐   │  │
-│  │  │  API Handler Wrapper (lib/api-handler.ts)          │   │  │
-│  │  │  • Rate Limiting                                    │   │  │
-│  │  │  • Authentication Check                             │   │  │
-│  │  │  • Error Handling                                   │   │  │
-│  │  │  • Request Logging                                  │   │  │
-│  │  └────────────────────────────────────────────────────┘   │  │
-│  │                            │                              │  │
-│  │  ┌─────────────────────────▼──────────────────────────┐  │  │
-│  │  │              API ENDPOINTS                          │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/auth/*                                        │  │  │
-│  │  │    • POST /register                                 │  │  │
-│  │  │    • POST /login                                    │  │  │
-│  │  │    • POST /refresh                                  │  │  │
-│  │  │    • POST /logout                                   │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/stripe/*                                      │  │  │
-│  │  │    • POST /checkout                                 │  │  │
-│  │  │    • POST /portal                                   │  │  │
-│  │  │    • POST /webhook                                  │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/subscription                                  │  │  │
-│  │  │    • GET /                                          │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/feature-flags                                 │  │  │
-│  │  │    • GET /                                          │  │  │
-│  │  │    • POST /                                         │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/users/*                                       │  │  │
-│  │  │    • GET /                                          │  │  │
-│  │  │    • GET /[id]                                      │  │  │
-│  │  │    • PATCH /[id]                                    │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/admin/*                                       │  │  │
-│  │  │    • GET /stats                                     │  │  │
+│                              │                                 │
+│  ┌───────────────────────────▼──────────────────────────────┐  │
+│  │                  API ROUTE LAYER                         │  │
+│  │                                                          │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │  API Handler Wrapper (lib/api-handler.ts)          │  │  │
+│  │  │  • Rate Limiting                                   │  │  │
+│  │  │  • Authentication Check                            │  │  │
+│  │  │  • Error Handling                                  │  │  │
+│  │  │  • Request Logging                                 │  │  │
 │  │  └────────────────────────────────────────────────────┘  │  │
-│  └─────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │              UTILITY LIBRARIES (lib/)                     │  │
-│  │  • auth.ts - Server-side auth utilities                   │  │
-│  │  • auth-client.ts - Client-side auth utilities            │  │
-│  │  • jwt.ts - JWT token generation/verification             │  │
-│  │  • rbac.ts - Role-based access control                    │  │
-│  │  • stripe.ts - Stripe integration                         │  │
-│  │  • feature-flags.ts - Feature flag system                 │  │
-│  │  • rate-limit.ts - Rate limiting                          │  │
-│  │  • validation.ts - Zod validation schemas                │  │
-│  │  • errors.ts - Custom error classes                       │  │
-│  │  • logger.ts - Structured logging                         │  │
-│  │  • prisma.ts - Database client                            │  │
+│  │                            │                             │  │
+│  │  ┌─────────────────────────▼──────────────────────────┐  │  │
+│  │  │              API ENDPOINTS                         │  │  │
+│  │  │                                                    │  │  │
+│  │  │  /api/auth/*                                       │  │  │
+│  │  │    • POST /register                                │  │  │
+│  │  │    • POST /login                                   │  │  │
+│  │  │    • POST /refresh                                 │  │  │
+│  │  │    • POST /logout                                  │  │  │
+│  │  │                                                    │  │  │
+│  │  │  /api/stripe/*                                     │  │  │
+│  │  │    • POST /checkout                                │  │  │
+│  │  │    • POST /portal                                  │  │  │
+│  │  │    • POST /webhook                                 │  │  │
+│  │  │                                                    │  │  │
+│  │  │  /api/subscription                                 │  │  │
+│  │  │    • GET /                                         │  │  │
+│  │  │                                                    │  │  │
+│  │  │  /api/feature-flags                                │  │  │
+│  │  │    • GET /                                         │  │  │
+│  │  │    • POST /                                        │  │  │
+│  │  │                                                    │  │  │
+│  │  │  /api/users/*                                      │  │  │
+│  │  │    • GET /                                         │  │  │
+│  │  │    • GET /[id]                                     │  │  │
+│  │  │    • PATCH /[id]                                   │  │  │
+│  │  │                                                    │  │  │
+│  │  │  /api/admin/*                                      │  │  │
+│  │  │    • GET /stats                                    │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
 │  └──────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────┘
+│                                                                │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              UTILITY LIBRARIES (lib/)                    │  │
+│  │  • auth.ts - Server-side auth utilities                  │  │
+│  │  • auth-client.ts - Client-side auth utilities           │  │
+│  │  • jwt.ts - JWT token generation/verification            │  │
+│  │  • rbac.ts - Role-based access control                   │  │
+│  │  • stripe.ts - Stripe integration                        │  │
+│  │  • feature-flags.ts - Feature flag system                │  │
+│  │  • rate-limit.ts - Rate limiting                         │  │
+│  │  • validation.ts - Zod validation schemas                │  │
+│  │  • errors.ts - Custom error classes                      │  │
+│  │  • logger.ts - Structured logging                        │  │
+│  │  • prisma.ts - Database client                           │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -154,16 +154,16 @@ This document provides detailed architecture descriptions for generating system 
      │ { name, email, password }
      ▼
 ┌─────────────────────────────────────┐
-│  createApiHandler                    │
-│  • Rate Limit Check (5/hour)         │
+│  createApiHandler                   │
+│  • Rate Limit Check (5/hour)        │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Input Validation (Zod)              │
-│  • nameSchema                        │
-│  • emailSchema                       │
-│  • passwordSchema                    │
+│  Input Validation (Zod)             │
+│  • nameSchema                       │
+│  • emailSchema                      │
+│  • passwordSchema                   │
 └────────────┬────────────────────────┘
              │
              ▼
@@ -176,21 +176,21 @@ This document provides detailed architecture descriptions for generating system 
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Token Generation                 │
-│  • Access Token (15min, JWT_SECRET)│
-│  • Refresh Token (7d, JWT_REFRESH) │
-└────────────┬──────────────────────┘
+│  Token Generation                   │
+│  • Access Token (15min, JWT_SECRET) │
+│  • Refresh Token (7d, JWT_REFRESH)  │
+└────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Store Refresh Token (DB)            │
+│  Store Refresh Token (DB)           │
 │  • refresh_tokens table             │
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { user, accessToken, refreshToken }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { user, accessToken, refreshToken }
+        └─────────┘
 ```
 
 ### Login Flow
@@ -204,42 +204,42 @@ This document provides detailed architecture descriptions for generating system 
      │ { email, password }
      ▼
 ┌─────────────────────────────────────┐
-│  createApiHandler                    │
-│  • Rate Limit Check (10/15min)       │
+│  createApiHandler                   │
+│  • Rate Limit Check (10/15min)      │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Input Validation (Zod)              │
+│  Input Validation (Zod)             │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Find User (Prisma)                  │
-│  • WHERE email = ?                   │
+│  Find User (Prisma)                 │
+│  • WHERE email = ?                  │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Verify Password (bcrypt.compare)    │
+│  Verify Password (bcrypt.compare)   │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Generate Tokens                     │
-│  • Access Token                      │
-│  • Refresh Token                     │
+│  Generate Tokens                    │
+│  • Access Token                     │
+│  • Refresh Token                    │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Store Refresh Token (DB)            │
+│  Store Refresh Token (DB)           │
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { user, accessToken, refreshToken }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { user, accessToken, refreshToken }
+        └─────────┘
 ```
 
 ### Token Refresh Flow (Critical Security)
@@ -253,34 +253,34 @@ This document provides detailed architecture descriptions for generating system 
      │ { refreshToken }
      ▼
 ┌─────────────────────────────────────┐
-│  Input Validation                    │
+│  Input Validation                   │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Verify JWT (JWT_REFRESH_SECRET)     │
+│  Verify JWT (JWT_REFRESH_SECRET)    │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Verify Token in DB                  │
-│  • Check exists                      │
-│  • Check not expired                 │
+│  Verify Token in DB                 │
+│  • Check exists                     │
+│  • Check not expired                │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  TOKEN ROTATION (Security)           │
-│  1. Delete old refresh token         │
-│  2. Generate new access token        │
-│  3. Generate new refresh token       │
-│  4. Store new refresh token          │
+│  TOKEN ROTATION (Security)          │
+│  1. Delete old refresh token        │
+│  2. Generate new access token       │
+│  3. Generate new refresh token      │
+│  4. Store new refresh token         │
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { accessToken, refreshToken }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { accessToken, refreshToken }
+        └─────────┘
 ```
 
 ### Protected Request Flow
@@ -294,33 +294,33 @@ This document provides detailed architecture descriptions for generating system 
      │ Authorization: Bearer <accessToken>
      ▼
 ┌─────────────────────────────────────┐
-│  Middleware (middleware.ts)          │
-│  • Extract token from header         │
-│  • Verify JWT signature              │
-│  • Check expiration                  │
-│  • Lookup user in DB                 │
-│  • Check role                        │
+│  Middleware (middleware.ts)         │
+│  • Extract token from header        │
+│  • Verify JWT signature             │
+│  • Check expiration                 │
+│  • Lookup user in DB                │
+│  • Check role                       │
 └────────────┬────────────────────────┘
              │
              │ Inject: x-user-id, x-user-role
              ▼
 ┌─────────────────────────────────────┐
-│  createApiHandler                    │
-│  • Rate Limit Check                  │
-│  • Extract auth context              │
+│  createApiHandler                   │
+│  • Rate Limit Check                 │
+│  • Extract auth context             │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Business Logic                      │
-│  • requireAdmin(auth)                │
-│  • Query users (Prisma)              │
+│  Business Logic                     │
+│  • requireAdmin(auth)               │
+│  • Query users (Prisma)             │
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { users: [...], pagination }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { users: [...], pagination }
+        └─────────┘
 ```
 
 ---
@@ -330,44 +330,46 @@ This document provides detailed architecture descriptions for generating system 
 ### Entity Relationship Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        USER                                   │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ id: String (PK, cuid)                                │   │
-│  │ email: String (unique)                                │   │
-│  │ password: String (bcrypt hashed)                      │   │
-│  │ name: String?                                          │   │
-│  │ role: UserRole (USER | ADMIN)                         │   │
-│  │ emailVerified: DateTime?                               │   │
-│  │ createdAt: DateTime                                    │   │
-│  │ updatedAt: DateTime                                    │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                            │                                  │
-│        ┌───────────────────┼───────────────────┐            │
-│        │                   │                   │            │
-│        │ 1                 │ 1                 │ 1          │
-│        │                   │                   │            │
-│        │ *                 │ 1                 │ *          │
-│        │                   │                   │            │
-┌───────▼──────┐   ┌────────▼────────┐  ┌──────▼──────────┐ │
-│ REFRESH_TOKEN │   │  SUBSCRIPTION   │  │ USER_FEATURE_FLAG│ │
-│               │   │                 │  │                  │ │
-│ id: String    │   │ id: String      │  │ id: String       │ │
-│ token: String │   │ userId: String │  │ userId: String  │ │
-│ userId: String│   │ stripeCustomerId│ │ flagKey: String │ │
-│ expiresAt: DT │   │ stripeSubId: ? │  │ enabled: Boolean │ │
-│ createdAt: DT │   │ status: Enum    │  │ createdAt: DT   │ │
-│               │   │ periodStart: ? │  │ updatedAt: DT   │ │
-│ @@index(userId)│  │ periodEnd: ?   │  │ @@unique(userId,│ │
-│ @@index(token)│  │ cancelAtEnd: Bool│ │          flagKey)│ │
-└───────────────┘   └─────────────────┘  └──────────────────┘ │
-                                                                 │
-┌─────────────────────────────────────────────────────────────┐ │
-│                    ENUMS                                    │ │
-│  UserRole: USER | ADMIN                                     │ │
-│  SubscriptionStatus: ACTIVE | CANCELED | PAST_DUE |         │ │
-│                  TRIALING | INCOMPLETE                      │ │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                        USER                                    │
+│  ┌──────────────────────────────────────────────────────┐      │
+│  │ id: String (PK, cuid)                                │      │
+│  │ email: String (unique)                               │      │
+│  │ password: String (bcrypt hashed)                     │      │
+│  │ name: String?                                        │      │
+│  │ role: UserRole (USER | ADMIN)                        │      │
+│  │ emailVerified: DateTime?                             │      │
+│  │ createdAt: DateTime                                  │      │
+│  │ updatedAt: DateTime                                  │      │
+│  └──────────────────────────────────────────────────────┘      │
+│                            │                                   │
+│          ┌───────────────────┼───────────────────┐             │
+│          │                   │                   │             │
+│          │ 1                 │ 1                 │ 1           │
+│          │                   │                   │             │
+│          │ *                 │ 1                 │ *           │
+│          │                   │                   │             │
+│  ┌────────▼───────┐  ┌────────▼────────┐  ┌───────▼──────────┐ │
+│  │ REFRESH_TOKEN  │  │  SUBSCRIPTION   │  │ USER_FEATURE_FLAG│ │
+│  │                │  │                 │  │                  │ │
+│  │ id: String     │  │ id: String      │  │ id: String       │ │
+│  │ token: String  │  │ userId: String  │  │ userId: String   │ │
+│  │ userId: String │  │ stripeCustomerId│  │ flagKey: String  │ │
+│  │ expiresAt: DT  │  │ stripeSubId: ?  │  │ enabled: Boolean │ │
+│  │ createdAt: DT  │  │ status: Enum    │  │ createdAt: DT    │ │
+│  │                │  │ periodStart: ?  │  │ updatedAt: DT    │ │
+│  │ @@index(userId)│  │ periodEnd: ?    │  │ @@unique(userId, │ │
+│  │ @@index(token) │  │ cancelAtEnd:Bool│  │          flagKey)│ │
+│  └────────────────┘  └─────────────────┘  └──────────────────┘ │
+│                                                                │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │                    ENUMS                                  │ │
+│  │  UserRole: USER | ADMIN                                   │ │
+│  │  SubscriptionStatus: ACTIVE | CANCELED | PAST_DUE |       │ │
+│  │                      TRIALING | INCOMPLETE                │ │
+│  └───────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────┘
+
 ```
 
 ### Database Indexes
@@ -414,29 +416,29 @@ UserFeatureFlags Table:
      │ Authorization: Bearer <token>
      ▼
 ┌─────────────────────────────────────┐
-│  Middleware: Auth Check              │
+│  Middleware: Auth Check             │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Business Logic                      │
+│  Business Logic                     │
 │  • Get or create Stripe customer    │
-│  • Create checkout session           │
+│  • Create checkout session          │
 └────────────┬────────────────────────┘
              │
              │ API Call
              ▼
 ┌─────────────────────────────────────┐
 │         Stripe API                  │
-│  • Create checkout session           │
-│  • Return session URL                │
+│  • Create checkout session          │
+│  • Return session URL               │
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { url: "https://checkout.stripe.com/..." }
-│         │ → Redirect to Stripe Checkout
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { url: "https://checkout.stripe.com/..." }
+        │         │ → Redirect to Stripe Checkout
+        └─────────┘
 ```
 
 ### Webhook Flow
@@ -451,31 +453,31 @@ UserFeatureFlags Table:
          │ { event data }
          ▼
 ┌─────────────────────────────────────┐
-│  Webhook Handler                     │
-│  • Verify signature                  │
-│  • Parse event                       │
+│  Webhook Handler                    │
+│  • Verify signature                 │
+│  • Parse event                      │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Event Processing                    │
-│  • customer.subscription.created     │
-│  • customer.subscription.updated     │
-│  • customer.subscription.deleted     │
+│  Event Processing                   │
+│  • customer.subscription.created    │
+│  • customer.subscription.updated    │
+│  • customer.subscription.deleted    │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Sync to Database                    │
-│  • Update subscription status        │
-│  • Update period dates               │
-│  • Handle cancellation               │
+│  Sync to Database                   │
+│  • Update subscription status       │
+│  • Update period dates              │
+│  • Handle cancellation              │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Response                            │
-│  { received: true }                  │
+│  Response                           │
+│  { received: true }                 │
 └─────────────────────────────────────┘
 ```
 
@@ -494,29 +496,29 @@ UserFeatureFlags Table:
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────┐
-│                    LAYER 2: AUTHENTICATION                   │
+│                    LAYER 2: AUTHENTICATION                  │
 │  • JWT token verification                                   │
-│  • Separate secrets for access/refresh                       │
+│  • Separate secrets for access/refresh                      │
 │  • Short-lived access tokens (15min)                        │
 │  • Refresh token rotation                                   │
 └───────────────────────────┬─────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────┐
-│                    LAYER 3: AUTHORIZATION                    │
-│  • Role-based access control (RBAC)                          │
+│                    LAYER 3: AUTHORIZATION                   │
+│  • Role-based access control (RBAC)                         │
 │  • Middleware enforcement                                   │
 │  • Per-route role requirements                              │
 └───────────────────────────┬─────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────┐
-│                    LAYER 4: RATE LIMITING                    │
+│                    LAYER 4: RATE LIMITING                   │
 │  • Per-route configurable limits                            │
-│  • IP-based (extensible to user-based)                     │
+│  • IP-based (extensible to user-based)                      │
 │  • Prevents brute force attacks                             │
 └───────────────────────────┬─────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────┐
-│                    LAYER 5: ERROR HANDLING                   │
+│                    LAYER 5: ERROR HANDLING                  │
 │  • Custom error classes                                     │
 │  • No information leakage                                   │
 │  • Structured logging                                       │
@@ -532,9 +534,9 @@ UserFeatureFlags Table:
 ```
 Client          Middleware        API Handler      Business Logic    Database      Stripe
   │                 │                  │                 │              │            │
-  │──POST /api/users───────────────────>│                 │              │            │
+  │──POST /api/users──────────────────>│                 │              │            │
   │                 │                  │                 │              │            │
-  │                 │──Verify JWT──────>│                 │              │            │
+  │                 │──Verify JWT─────>│                 │              │            │
   │                 │                  │                 │              │            │
   │                 │<─User Context────│                 │              │            │
   │                 │                  │                 │              │            │
@@ -542,17 +544,17 @@ Client          Middleware        API Handler      Business Logic    Database   
   │                 │                  │                 │              │            │
   │                 │                  │──Auth Check────>│              │            │
   │                 │                  │                 │              │            │
-  │                 │                  │──Validate───────>│              │            │
+  │                 │                  │──Validate──────>│              │            │
   │                 │                  │                 │              │            │
-  │                 │                  │──requireAdmin───>│              │            │
+  │                 │                  │──requireAdmin──>│              │            │
   │                 │                  │                 │              │            │
-  │                 │                  │                 │──Query───────>│            │
+  │                 │                  │                 │──Query──────>│            │
   │                 │                  │                 │              │            │
-  │                 │                  │                 │<─Users────────│            │
+  │                 │                  │                 │<─Users───────│            │
   │                 │                  │                 │              │            │
   │                 │                  │<─Response───────│              │            │
   │                 │                  │                 │              │            │
-  │                 │                  │──Log Request────>│              │            │
+  │                 │                  │──Log Request───>│              │            │
   │                 │                  │                 │              │            │
   │<─200 OK─────────│<─────────────────│<────────────────│              │            │
   │                 │                  │                 │              │            │
@@ -630,7 +632,7 @@ Client          Middleware        API Handler      Business Logic    Database   
 
 ```
 ┌─────────────────────────────────────────┐
-│         Single Next.js Instance          │
+│         Single Next.js Instance         │
 │  ┌───────────────────────────────────┐  │
 │  │  App Router + API Routes          │  │
 │  │  • In-memory rate limiting        │  │
@@ -650,7 +652,7 @@ Client          Middleware        API Handler      Business Logic    Database   
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              Load Balancer                               │
+│              Load Balancer                              │
 └──────────────────┬──────────────────────────────────────┘
                    │
     ┌──────────────┼──────────────┐
@@ -664,7 +666,7 @@ Client          Middleware        API Handler      Business Logic    Database   
                    │
     ┌──────────────┼──────────────┐
     │              │              │
-┌───▼───┐    ┌────▼────┐    ┌────▼────┐
+┌───▼───┐    ┌────▼─────┐   ┌────▼─────┐
 │Redis  │    │PostgreSQL│   │PostgreSQL│
 │Cache  │    │ Primary  │   │ Replica  │
 └───────┘    └────┬─────┘   └────┬─────┘
@@ -805,34 +807,34 @@ erDiagram
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    FRONTEND LAYER                        │
+│                    FRONTEND LAYER                       │
 │  • Next.js 14 App Router                                │
-│  • React 18                                              │
-│  • TypeScript                                            │
-│  • Tailwind CSS                                          │
+│  • React 18                                             │
+│  • TypeScript                                           │
+│  • Tailwind CSS                                         │
 └─────────────────────────────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────┐
-│                    APPLICATION LAYER                      │
-│  • Next.js API Routes                                    │
-│  • Edge Middleware                                       │
-│  • Server Components                                     │
+│                    APPLICATION LAYER                    │
+│  • Next.js API Routes                                   │
+│  • Edge Middleware                                      │
+│  • Server Components                                    │
 └───────────────────────────┬─────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────┐
-│                    BUSINESS LOGIC                        │
-│  • Custom JWT Auth                                       │
-│  • RBAC System                                           │
-│  • Feature Flags                                         │
-│  • Stripe Integration                                    │
+│                    BUSINESS LOGIC                       │
+│  • Custom JWT Auth                                      │
+│  • RBAC System                                          │
+│  • Feature Flags                                        │
+│  • Stripe Integration                                   │
 └───────────────────────────┬─────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
 ┌───────▼──────┐  ┌─────────▼────────┐  ┌──────▼──────┐
-│  PostgreSQL   │  │   Stripe API     │  │   Redis     │
-│  (Prisma ORM) │  │   (External)     │  │  (Future)   │
-└───────────────┘  └──────────────────┘  └─────────────┘
+│  PostgreSQL  │  │   Stripe API     │  │   Redis     │
+│  (Prisma ORM)│  │   (External)     │  │  (Future)   │
+└──────────────┘  └──────────────────┘  └─────────────┘
 ```
 
 ---
