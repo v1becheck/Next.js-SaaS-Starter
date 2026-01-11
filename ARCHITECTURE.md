@@ -655,17 +655,17 @@ Client          Middleware        API Handler      Business Logic    Database   
 │              Load Balancer                              │
 └──────────────────┬──────────────────────────────────────┘
                    │
-    ┌──────────────┼──────────────┐
-    │              │              │
+    ┌──────────────┼─────────────┐
+    │              │             │
 ┌───▼───┐    ┌────▼────┐    ┌────▼────┐
 │Next.js│    │ Next.js │    │ Next.js │
 │App #1 │    │ App #2  │    │ App #3  │
 └───┬───┘    └────┬────┘    └────┬────┘
-    │              │              │
-    └──────────────┼──────────────┘
-                   │
-    ┌──────────────┼──────────────┐
-    │              │              │
+    │             │              │
+    └─────────────┼──────────────┘
+                  │
+    ┌─────────────┼──────────────┐
+    │             │              │
 ┌───▼───┐    ┌────▼─────┐   ┌────▼─────┐
 │Redis  │    │PostgreSQL│   │PostgreSQL│
 │Cache  │    │ Primary  │   │ Replica  │
@@ -705,12 +705,12 @@ graph TB
     BusinessRoutes --> Stripe
     APIHandler -.->|Future| Redis
     
-    style Client fill:#e1f5ff
-    style Middleware fill:#fff4e6
-    style APIHandler fill:#f3e5f5
-    style Database fill:#e8f5e9
-    style Stripe fill:#fff9c4
-    style Redis fill:#ffebee
+    style Client fill:#1565c0,color:#fff
+    style Middleware fill:#f57c00,color:#fff
+    style APIHandler fill:#7b1fa2,color:#fff
+    style Database fill:#2e7d32,color:#fff
+    style Stripe fill:#f9a825,color:#000
+    style Redis fill:#c62828,color:#fff
 ```
 
 ### Authentication Flow (Mermaid)
@@ -767,7 +767,7 @@ erDiagram
     
     SUBSCRIPTION {
         string id PK
-        string userId FK UK
+        string userId FK
         string stripeCustomerId UK
         string stripeSubscriptionId UK
         enum status
@@ -785,6 +785,8 @@ erDiagram
         datetime updatedAt
     }
 ```
+
+**Note**: The `userId` field in SUBSCRIPTION is unique (one-to-one relationship with USER), but Mermaid ERD syntax doesn't support multiple constraints on a single line. The uniqueness is implied by the `||--o|` relationship notation.
 
 ---
 
@@ -829,8 +831,8 @@ erDiagram
 │  • Stripe Integration                                   │
 └───────────────────────────┬─────────────────────────────┘
                             │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
+        ┌───────────────────┼──────────────────┐
+        │                   │                  │
 ┌───────▼──────┐  ┌─────────▼────────┐  ┌──────▼──────┐
 │  PostgreSQL  │  │   Stripe API     │  │   Redis     │
 │  (Prisma ORM)│  │   (External)     │  │  (Future)   │
