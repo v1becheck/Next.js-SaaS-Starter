@@ -10,54 +10,54 @@ This document provides detailed architecture descriptions for generating system 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT LAYER                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   Browser    │  │  Mobile App  │  │  API Client  │          │
-│  │  (React)    │  │  (Future)    │  │  (Future)    │          │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
-│         │                  │                  │                  │
+│                         CLIENT LAYER                            │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐         │
+│  │   Browser    │   │  Mobile App  │   │  API Client  │         │
+│  │  (React)     │   │  (Future)    │   │  (Future)    │         │
+│  └──────┬───────┘   └──────┬───────┘   └──────┬───────┘         │
+│         │                  │                  │                 │
 │         └──────────────────┼──────────────────┘                 │
-│                            │                                     │
-│                    HTTPS + JWT Bearer Tokens                     │
-└────────────────────────────┼─────────────────────────────────────┘
-                              │
-┌─────────────────────────────▼─────────────────────────────────────┐
-│                    NEXT.JS APPLICATION LAYER                       │
+│                            │                                    │
+│                    HTTPS + JWT Bearer Tokens                    │
+└────────────────────────────┼────────────────────────────────────┘
+                             │
+┌────────────────────────────▼─────────────────────────────────────┐
+│                    NEXT.JS APPLICATION LAYER                     │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │              EDGE MIDDLEWARE (middleware.ts)                  │ │
-│  │  • JWT Token Validation (stateless)                           │ │
-│  │  • RBAC Enforcement (role checks)                            │ │
+│  │              EDGE MIDDLEWARE (middleware.ts)                │ │
+│  │  • JWT Token Validation (stateless)                         │ │
+│  │  • RBAC Enforcement (role checks)                           │ │
 │  │  • Request Context Injection (x-user-id, x-user-role)       │ │
 │  └─────────────────────────────────────────────────────────────┘ │
-│                              │                                     │
-│  ┌───────────────────────────▼───────────────────────────────────┐ │
-│  │              API ROUTE HANDLER (createApiHandler)             │ │
-│  │  • Rate Limiting (per-route config)                           │ │
-│  │  • Input Validation (Zod schemas)                             │ │
-│  │  • Error Handling (custom error classes)                      │ │
-│  │  • Request Logging (structured, with duration)               │ │
-│  └───────────────────────────┬───────────────────────────────────┘ │
-│                              │                                     │
-│  ┌───────────────────────────▼───────────────────────────────────┐ │
-│  │                    BUSINESS LOGIC LAYER                       │ │
-│  │  • Authentication Logic (lib/auth.ts)                        │ │
-│  │  • RBAC Logic (lib/rbac.ts)                                  │ │
-│  │  • Feature Flags (lib/feature-flags.ts)                      │ │
-│  │  • Stripe Integration (lib/stripe.ts)                        │ │
-│  └───────────────────────────┬───────────────────────────────────┘ │
-└──────────────────────────────┼─────────────────────────────────────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        │                      │                        │
-┌───────▼──────┐    ┌──────────▼──────────┐   ┌───────▼──────┐
-│  PostgreSQL  │    │   Stripe API        │   │   Redis      │
-│   Database   │    │   (External)        │   │  (Future)    │
-│              │    │                     │   │              │
-│ • Users      │    │ • Checkout          │   │ • Rate Limit │
-│ • Tokens     │    │ • Subscriptions     │   │ • Caching    │
-│ • Subscriptions│   │ • Webhooks          │   │              │
-│ • Feature Flags│  │                     │   │              │
-└──────────────┘    └─────────────────────┘   └──────────────┘
+│                              │                                   │
+│  ┌───────────────────────────▼─────────────────────────────────┐ │
+│  │              API ROUTE HANDLER (createApiHandler)           │ │
+│  │  • Rate Limiting (per-route config)                         │ │
+│  │  • Input Validation (Zod schemas)                           │ │
+│  │  • Error Handling (custom error classes)                    │ │
+│  │  • Request Logging (structured, with duration)              │ │
+│  └───────────────────────────┬─────────────────────────────────┘ │
+│                              │                                   │
+│  ┌───────────────────────────▼─────────────────────────────────┐ │
+│  │                    BUSINESS LOGIC LAYER                     │ │
+│  │  • Authentication Logic (lib/auth.ts)                       │ │
+│  │  • RBAC Logic (lib/rbac.ts)                                 │ │
+│  │  • Feature Flags (lib/feature-flags.ts)                     │ │
+│  │  • Stripe Integration (lib/stripe.ts)                       │ │
+│  └─────────────────────────────┬───────────────────────────────┘ │
+└────────────────────────────────┼─────────────────────────────────┘
+                                 │
+        ┌────────────────────────┼──────────────────────┐
+        │                        │                      │
+┌───────▼────────┐    ┌──────────▼──────────┐   ┌───────▼──────┐
+│  PostgreSQL    │    │   Stripe API        │   │   Redis      │
+│   Database     │    │   (External)        │   │  (Future)    │
+│                │    │                     │   │              │
+│ • Users        │    │ • Checkout          │   │ • Rate Limit │
+│ • Tokens       │    │ • Subscriptions     │   │ • Caching    │
+│ • Subscriptions│    │ • Webhooks          │   │              │
+│ • Feature Flags│    │                     │   │              │
+└────────────────┘    └─────────────────────┘   └──────────────┘
 ```
 
 ---
@@ -71,71 +71,71 @@ This document provides detailed architecture descriptions for generating system 
 │                      NEXT.JS APP ROUTER                          │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │                    MIDDLEWARE LAYER                      │  │
-│  │  File: middleware.ts                                     │  │
-│  │  • JWT Verification (lib/jwt.ts)                         │  │
-│  │  • User Lookup (Prisma)                                  │  │
-│  │  • Role Validation (lib/rbac.ts)                         │  │
-│  │  • Context Injection                                     │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                            │                                     │
-│  ┌─────────────────────────▼──────────────────────────────────┐  │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │                    MIDDLEWARE LAYER                      │    │
+│  │  File: middleware.ts                                     │    │
+│  │  • JWT Verification (lib/jwt.ts)                         │    │
+│  │  • User Lookup (Prisma)                                  │    │
+│  │  • Role Validation (lib/rbac.ts)                         │    │
+│  │  • Context Injection                                     │    │
+│  └──────────────────────────────────────────────────────────┘    │
+│                              │                                   │
+│  ┌───────────────────────────▼────────────────────────────────┐  │
 │  │                  API ROUTE LAYER                           │  │
-│  │                                                             │  │
-│  │  ┌────────────────────────────────────────────────────┐   │  │
-│  │  │  API Handler Wrapper (lib/api-handler.ts)          │   │  │
-│  │  │  • Rate Limiting                                    │   │  │
-│  │  │  • Authentication Check                             │   │  │
-│  │  │  • Error Handling                                   │   │  │
-│  │  │  • Request Logging                                  │   │  │
-│  │  └────────────────────────────────────────────────────┘   │  │
-│  │                            │                              │  │
-│  │  ┌─────────────────────────▼──────────────────────────┐  │  │
-│  │  │              API ENDPOINTS                          │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/auth/*                                        │  │  │
-│  │  │    • POST /register                                 │  │  │
-│  │  │    • POST /login                                    │  │  │
-│  │  │    • POST /refresh                                  │  │  │
-│  │  │    • POST /logout                                   │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/stripe/*                                      │  │  │
-│  │  │    • POST /checkout                                 │  │  │
-│  │  │    • POST /portal                                   │  │  │
-│  │  │    • POST /webhook                                  │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/subscription                                  │  │  │
-│  │  │    • GET /                                          │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/feature-flags                                 │  │  │
-│  │  │    • GET /                                          │  │  │
-│  │  │    • POST /                                         │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/users/*                                       │  │  │
-│  │  │    • GET /                                          │  │  │
-│  │  │    • GET /[id]                                      │  │  │
-│  │  │    • PATCH /[id]                                    │  │  │
-│  │  │                                                      │  │  │
-│  │  │  /api/admin/*                                       │  │  │
-│  │  │    • GET /stats                                     │  │  │
-│  │  └────────────────────────────────────────────────────┘  │  │
-│  └─────────────────────────────────────────────────────────────┘  │
+│  │                                                            │  │
+│  │  ┌────────────────────────────────────────────────────┐    │  │
+│  │  │  API Handler Wrapper (lib/api-handler.ts)          │    │  │
+│  │  │  • Rate Limiting                                   │    │  │
+│  │  │  • Authentication Check                            │    │  │
+│  │  │  • Error Handling                                  │    │  │
+│  │  │  • Request Logging                                 │    │  │
+│  │  └────────────────────────────────────────────────────┘    │  │
+│  │                            │                               │  │
+│  │  ┌─────────────────────────▼──────────────────────────┐    │  │
+│  │  │              API ENDPOINTS                         │    │  │
+│  │  │                                                    │    │  │
+│  │  │  /api/auth/*                                       │    │  │
+│  │  │    • POST /register                                │    │  │
+│  │  │    • POST /login                                   │    │  │
+│  │  │    • POST /refresh                                 │    │  │
+│  │  │    • POST /logout                                  │    │  │
+│  │  │                                                    │    │  │
+│  │  │  /api/stripe/*                                     │    │  │
+│  │  │    • POST /checkout                                │    │  │
+│  │  │    • POST /portal                                  │    │  │
+│  │  │    • POST /webhook                                 │    │  │
+│  │  │                                                    │    │  │
+│  │  │  /api/subscription                                 │    │  │
+│  │  │    • GET /                                         │    │  │
+│  │  │                                                    │    │  │
+│  │  │  /api/feature-flags                                │    │  │
+│  │  │    • GET /                                         │    │  │
+│  │  │    • POST /                                        │    │  │
+│  │  │                                                    │    │  │
+│  │  │  /api/users/*                                      │    │  │
+│  │  │    • GET /                                         │    │  │
+│  │  │    • GET /[id]                                     │    │  │
+│  │  │    • PATCH /[id]                                   │    │  │
+│  │  │                                                    │    │  │
+│  │  │  /api/admin/*                                      │    │  │
+│  │  │    • GET /stats                                    │    │  │
+│  │  └────────────────────────────────────────────────────┘    │  │
+│  └────────────────────────────────────────────────────────────┘  │
 │                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │              UTILITY LIBRARIES (lib/)                     │  │
-│  │  • auth.ts - Server-side auth utilities                   │  │
-│  │  • auth-client.ts - Client-side auth utilities            │  │
-│  │  • jwt.ts - JWT token generation/verification             │  │
-│  │  • rbac.ts - Role-based access control                    │  │
-│  │  • stripe.ts - Stripe integration                         │  │
-│  │  • feature-flags.ts - Feature flag system                 │  │
-│  │  • rate-limit.ts - Rate limiting                          │  │
-│  │  • validation.ts - Zod validation schemas                │  │
-│  │  • errors.ts - Custom error classes                       │  │
-│  │  • logger.ts - Structured logging                         │  │
-│  │  • prisma.ts - Database client                            │  │
-│  └──────────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │              UTILITY LIBRARIES (lib/)                    │    │
+│  │  • auth.ts - Server-side auth utilities                  │    │
+│  │  • auth-client.ts - Client-side auth utilities           │    │
+│  │  • jwt.ts - JWT token generation/verification            │    │
+│  │  • rbac.ts - Role-based access control                   │    │
+│  │  • stripe.ts - Stripe integration                        │    │
+│  │  • feature-flags.ts - Feature flag system                │    │
+│  │  • rate-limit.ts - Rate limiting                         │    │
+│  │  • validation.ts - Zod validation schemas                │    │
+│  │  • errors.ts - Custom error classes                      │    │
+│  │  • logger.ts - Structured logging                        │    │
+│  │  • prisma.ts - Database client                           │    │
+│  └──────────────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -154,16 +154,16 @@ This document provides detailed architecture descriptions for generating system 
      │ { name, email, password }
      ▼
 ┌─────────────────────────────────────┐
-│  createApiHandler                    │
-│  • Rate Limit Check (5/hour)         │
+│  createApiHandler                   │
+│  • Rate Limit Check (5/hour)        │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Input Validation (Zod)              │
-│  • nameSchema                        │
-│  • emailSchema                       │
-│  • passwordSchema                    │
+│  Input Validation (Zod)             │
+│  • nameSchema                       │
+│  • emailSchema                      │
+│  • passwordSchema                   │
 └────────────┬────────────────────────┘
              │
              ▼
@@ -176,14 +176,14 @@ This document provides detailed architecture descriptions for generating system 
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Token Generation                 │
-│  • Access Token (15min, JWT_SECRET)│
-│  • Refresh Token (7d, JWT_REFRESH) │
-└────────────┬──────────────────────┘
+│  Token Generation                   │
+│  • Access Token (15min, JWT_SECRET) │
+│  • Refresh Token (7d, JWT_REFRESH)  │
+└────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Store Refresh Token (DB)            │
+│  Store Refresh Token (DB)           │
 │  • refresh_tokens table             │
 └────────────┬────────────────────────┘
              │
@@ -204,36 +204,36 @@ This document provides detailed architecture descriptions for generating system 
      │ { email, password }
      ▼
 ┌─────────────────────────────────────┐
-│  createApiHandler                    │
-│  • Rate Limit Check (10/15min)       │
+│  createApiHandler                   │
+│  • Rate Limit Check (10/15min)      │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Input Validation (Zod)              │
+│  Input Validation (Zod)             │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Find User (Prisma)                  │
-│  • WHERE email = ?                   │
+│  Find User (Prisma)                 │
+│  • WHERE email = ?                  │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Verify Password (bcrypt.compare)    │
+│  Verify Password (bcrypt.compare)   │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Generate Tokens                     │
-│  • Access Token                      │
-│  • Refresh Token                     │
+│  Generate Tokens                    │
+│  • Access Token                     │
+│  • Refresh Token                    │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Store Refresh Token (DB)            │
+│  Store Refresh Token (DB)           │
 └────────────┬────────────────────────┘
              │
              ▼
@@ -253,28 +253,28 @@ This document provides detailed architecture descriptions for generating system 
      │ { refreshToken }
      ▼
 ┌─────────────────────────────────────┐
-│  Input Validation                    │
+│  Input Validation                   │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Verify JWT (JWT_REFRESH_SECRET)     │
+│  Verify JWT (JWT_REFRESH_SECRET)    │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Verify Token in DB                  │
-│  • Check exists                      │
-│  • Check not expired                 │
+│  Verify Token in DB                 │
+│  • Check exists                     │
+│  • Check not expired                │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  TOKEN ROTATION (Security)           │
-│  1. Delete old refresh token         │
-│  2. Generate new access token        │
-│  3. Generate new refresh token       │
-│  4. Store new refresh token          │
+│  TOKEN ROTATION (Security)          │
+│  1. Delete old refresh token        │
+│  2. Generate new access token       │
+│  3. Generate new refresh token      │
+│  4. Store new refresh token         │
 └────────────┬────────────────────────┘
              │
              ▼
@@ -294,27 +294,27 @@ This document provides detailed architecture descriptions for generating system 
      │ Authorization: Bearer <accessToken>
      ▼
 ┌─────────────────────────────────────┐
-│  Middleware (middleware.ts)          │
-│  • Extract token from header         │
-│  • Verify JWT signature              │
-│  • Check expiration                  │
-│  • Lookup user in DB                 │
-│  • Check role                        │
+│  Middleware (middleware.ts)         │
+│  • Extract token from header        │
+│  • Verify JWT signature             │
+│  • Check expiration                 │
+│  • Lookup user in DB                │
+│  • Check role                       │
 └────────────┬────────────────────────┘
              │
              │ Inject: x-user-id, x-user-role
              ▼
 ┌─────────────────────────────────────┐
-│  createApiHandler                    │
-│  • Rate Limit Check                  │
-│  • Extract auth context              │
+│  createApiHandler                   │
+│  • Rate Limit Check                 │
+│  • Extract auth context             │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  Business Logic                      │
-│  • requireAdmin(auth)                │
-│  • Query users (Prisma)              │
+│  Business Logic                     │
+│  • requireAdmin(auth)               │
+│  • Query users (Prisma)             │
 └────────────┬────────────────────────┘
              │
              ▼
