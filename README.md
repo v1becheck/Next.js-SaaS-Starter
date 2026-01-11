@@ -55,6 +55,79 @@ The architecture follows a **layered defense strategy** with clear boundaries:
 └────────────┘  └─────────┘ └──────────┘  └─────────┘
 ```
 
+**Visual Architecture Diagram:**
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Browser[Browser/Client]
+        Mobile[Mobile App - Future]
+        API_Client[API Client - Future]
+    end
+    
+    subgraph "Next.js Application"
+        Middleware[Edge Middleware<br/>JWT Validation, RBAC]
+        API_Handler[API Handler Wrapper<br/>Rate Limiting, Validation, Logging]
+        
+        subgraph "API Routes"
+            Auth[Auth Routes<br/>/api/auth/*]
+            Stripe_Routes[Stripe Routes<br/>/api/stripe/*]
+            Users[User Routes<br/>/api/users/*]
+            Admin[Admin Routes<br/>/api/admin/*]
+            Features[Feature Flags<br/>/api/feature-flags]
+            Sub[Subscription<br/>/api/subscription]
+        end
+        
+        subgraph "Business Logic"
+            Auth_Logic[Auth Logic]
+            RBAC_Logic[RBAC Logic]
+            Stripe_Logic[Stripe Logic]
+            Feature_Logic[Feature Flags]
+        end
+    end
+    
+    subgraph "Data Layer"
+        PostgreSQL[(PostgreSQL<br/>Users, Tokens,<br/>Subscriptions, Flags)]
+        Redis[(Redis<br/>Rate Limiting<br/>Caching - Future)]
+    end
+    
+    subgraph "External Services"
+        Stripe_API[Stripe API<br/>Checkout, Webhooks]
+    end
+    
+    Browser --> Middleware
+    Mobile -.-> Middleware
+    API_Client -.-> Middleware
+    
+    Middleware --> API_Handler
+    API_Handler --> Auth
+    API_Handler --> Stripe_Routes
+    API_Handler --> Users
+    API_Handler --> Admin
+    API_Handler --> Features
+    API_Handler --> Sub
+    
+    Auth --> Auth_Logic
+    Users --> RBAC_Logic
+    Stripe_Routes --> Stripe_Logic
+    Features --> Feature_Logic
+    
+    Auth_Logic --> PostgreSQL
+    RBAC_Logic --> PostgreSQL
+    Feature_Logic --> PostgreSQL
+    Stripe_Logic --> Stripe_API
+    Stripe_Logic --> PostgreSQL
+    
+    API_Handler -.-> Redis
+    
+    style Browser fill:#1565c0,color:#fff
+    style Middleware fill:#f57c00,color:#fff
+    style API_Handler fill:#7b1fa2,color:#fff
+    style PostgreSQL fill:#2e7d32,color:#fff
+    style Stripe_API fill:#f9a825,color:#000
+    style Redis fill:#c62828,color:#fff
+```
+
 ### Core Architectural Decisions
 
 #### 1. Custom JWT Authentication (vs. NextAuth)
@@ -243,6 +316,56 @@ export const GET = createApiHandler(getUsers, {
 - Structured logging (security events logged)
 - Consistent error responses (no stack traces in production)
 
+**Defense-in-Depth Architecture:**
+
+```mermaid
+graph TD
+    subgraph "Layer 1: Input Validation"
+        V1[Zod Schemas]
+        V2[Type Safety]
+        V3[Password Strength]
+    end
+    
+    subgraph "Layer 2: Authentication"
+        A1[JWT Verification]
+        A2[Token Expiration]
+        A3[Refresh Rotation]
+    end
+    
+    subgraph "Layer 3: Authorization"
+        Z1[RBAC Middleware]
+        Z2[Role Checks]
+        Z3[Route Protection]
+    end
+    
+    subgraph "Layer 4: Rate Limiting"
+        R1[IP-based Limits]
+        R2[Per-route Config]
+        R3[Brute Force Prevention]
+    end
+    
+    subgraph "Layer 5: Error Handling"
+        E1[Custom Error Classes]
+        E2[No Info Leakage]
+        E3[Structured Logging]
+    end
+    
+    Request[Incoming Request] --> V1
+    V1 --> A1
+    A1 --> Z1
+    Z1 --> R1
+    R1 --> E1
+    E1 --> Response[Response]
+    
+    style Request fill:#1565c0,color:#fff
+    style Response fill:#2e7d32,color:#fff
+    style V1 fill:#f9a825,color:#000
+    style A1 fill:#e64a19,color:#fff
+    style Z1 fill:#c2185b,color:#fff
+    style R1 fill:#512da8,color:#fff
+    style E1 fill:#00796b,color:#fff
+```
+
 ### Security Implementation Checklist
 
 ✅ **Password Hashing**: bcrypt with cost factor 10 (industry standard)  
@@ -275,6 +398,66 @@ export const GET = createApiHandler(getUsers, {
 3. **Logging**: Console only (no aggregation)
 
 **Mitigation Strategy**: Architecture designed for easy migration (see below).
+
+**Scalability Evolution:**
+
+```mermaid
+graph TB
+    subgraph "Phase 1: 0-10K Users"
+        P1_App[Single Next.js Instance]
+        P1_DB[(Single PostgreSQL)]
+        P1_Mem[In-Memory Rate Limit]
+        P1_Log[Console Logging]
+        
+        P1_App --> P1_DB
+        P1_App --> P1_Mem
+        P1_App --> P1_Log
+    end
+    
+    subgraph "Phase 2: 10K-100K Users"
+        P2_LB[Load Balancer]
+        P2_App1[Next.js Instance 1]
+        P2_App2[Next.js Instance 2]
+        P2_DB_Primary[(PostgreSQL Primary)]
+        P2_DB_Replica[(PostgreSQL Replica)]
+        P2_Redis[(Redis Cache)]
+        P2_CDN[CDN]
+        
+        P2_LB --> P2_App1
+        P2_LB --> P2_App2
+        P2_App1 --> P2_DB_Primary
+        P2_App2 --> P2_DB_Primary
+        P2_App1 --> P2_DB_Replica
+        P2_App2 --> P2_DB_Replica
+        P2_App1 --> P2_Redis
+        P2_App2 --> P2_Redis
+        P2_LB --> P2_CDN
+    end
+    
+    subgraph "Phase 3: 100K-500K Users"
+        P3_LB[Load Balancer]
+        P3_Apps[Multiple Next.js Instances]
+        P3_DB_Primary[(PostgreSQL Primary)]
+        P3_DB_Replicas[(3-5 Read Replicas)]
+        P3_Redis_Cluster[(Redis Cluster)]
+        P3_Queue[Job Queue - Bull/BullMQ]
+        P3_Monitor[APM + Monitoring]
+        
+        P3_LB --> P3_Apps
+        P3_Apps --> P3_DB_Primary
+        P3_Apps --> P3_DB_Replicas
+        P3_Apps --> P3_Redis_Cluster
+        P3_Apps --> P3_Queue
+        P3_Apps --> P3_Monitor
+    end
+    
+    P1_App -.Migration.-> P2_LB
+    P2_LB -.Migration.-> P3_LB
+    
+    style P1_App fill:#2e7d32,color:#fff
+    style P2_LB fill:#f9a825,color:#000
+    style P3_LB fill:#e64a19,color:#fff
+```
 
 ---
 
@@ -456,6 +639,40 @@ Client → POST /api/auth/register
   └─ Response (user data + tokens)
 ```
 
+**Registration Sequence Diagram:**
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API Handler
+    participant V as Validator
+    participant B as Business Logic
+    participant D as Database
+    participant J as JWT Service
+    participant L as Logger
+    
+    Note over C,L: User Registration Flow
+    C->>A: POST /api/auth/register<br/>{name, email, password}
+    A->>A: Rate Limit Check (5/hour)
+    A->>V: Validate Input
+    V-->>A: Validated Data
+    A->>B: Register User
+    B->>D: Check Email Exists
+    D-->>B: Email Available
+    B->>B: Hash Password (bcrypt)
+    B->>D: Create User
+    D-->>B: User Created
+    B->>J: Generate Access Token
+    J-->>B: Access Token (15min)
+    B->>J: Generate Refresh Token
+    J-->>B: Refresh Token (7 days)
+    B->>D: Store Refresh Token
+    D-->>B: Token Stored
+    B->>L: Log Registration
+    B-->>A: User + Tokens
+    A-->>C: 201 Created<br/>{user, accessToken, refreshToken}
+```
+
 **Security Considerations**:
 - Rate limiting prevents account enumeration
 - Password validation enforces strength requirements
@@ -473,6 +690,42 @@ Client → POST /api/auth/refresh
   │   └─ Generate new tokens
   ├─ Store new refresh token (DB)
   └─ Response (new access + refresh tokens)
+```
+
+**Token Refresh Sequence Diagram (with Rotation):**
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API Handler
+    participant V as Validator
+    participant J as JWT Service
+    participant D as Database
+    participant L as Logger
+    
+    Note over C,L: Token Refresh with Rotation
+    C->>A: POST /api/auth/refresh<br/>{refreshToken}
+    A->>A: Rate Limit Check (20/min)
+    A->>V: Validate Input
+    V-->>A: Validated Token
+    A->>J: Verify Refresh Token
+    J-->>A: Token Valid
+    A->>D: Lookup Token in DB
+    D-->>A: Token Found & Not Expired
+    A->>J: Generate New Access Token
+    J-->>A: New Access Token (15min)
+    A->>J: Generate New Refresh Token
+    J-->>A: New Refresh Token (7 days)
+    
+    Note over A,D: TOKEN ROTATION (Security)
+    A->>D: DELETE Old Refresh Token
+    D-->>A: Old Token Deleted
+    A->>D: INSERT New Refresh Token
+    D-->>A: New Token Stored
+    A->>L: Log Token Refresh
+    A-->>C: 200 OK<br/>{accessToken, refreshToken}
+    
+    Note over C,L: If Token Stolen - Can Only Use Once
 ```
 
 **Why Rotation Matters**:
