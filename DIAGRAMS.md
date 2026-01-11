@@ -69,12 +69,12 @@ graph TB
     
     API_Handler -.-> Redis
     
-    style Browser fill:#e1f5ff
-    style Middleware fill:#fff4e6
-    style API_Handler fill:#f3e5f5
-    style PostgreSQL fill:#e8f5e9
-    style Stripe_API fill:#fff9c4
-    style Redis fill:#ffebee
+    style Browser fill:#1565c0,color:#fff
+    style Middleware fill:#f57c00,color:#fff
+    style API_Handler fill:#7b1fa2,color:#fff
+    style PostgreSQL fill:#2e7d32,color:#fff
+    style Stripe_API fill:#f9a825,color:#000
+    style Redis fill:#c62828,color:#fff
 ```
 
 ---
@@ -339,13 +339,13 @@ graph TD
     R1 --> E1
     E1 --> Response[Response]
     
-    style Request fill:#e1f5ff
-    style Response fill:#c8e6c9
-    style V1 fill:#fff9c4
-    style A1 fill:#ffccbc
-    style Z1 fill:#f8bbd0
-    style R1 fill:#d1c4e9
-    style E1 fill:#b2dfdb
+    style Request fill:#1565c0,color:#fff
+    style Response fill:#2e7d32,color:#fff
+    style V1 fill:#f9a825,color:#000
+    style A1 fill:#e64a19,color:#fff
+    style Z1 fill:#c2185b,color:#fff
+    style R1 fill:#512da8,color:#fff
+    style E1 fill:#00796b,color:#fff
 ```
 
 ---
@@ -365,8 +365,8 @@ graph LR
         Logout[POST /api/auth/logout]
         Subscription[GET /api/subscription]
         Features_Get[GET /api/feature-flags]
-        User_Get[GET /api/users/[id]]
-        User_Update[PATCH /api/users/[id]]
+        User_Get["GET /api/users/:id"]
+        User_Update["PATCH /api/users/:id"]
         Checkout[POST /api/stripe/checkout]
         Portal[POST /api/stripe/portal]
     end
@@ -394,12 +394,12 @@ graph LR
     
     Webhook --> No_Auth[No Authentication<br/>Signature Verified]
     
-    style Register fill:#c8e6c9
-    style Login fill:#c8e6c9
-    style Webhook fill:#c8e6c9
-    style Auth fill:#fff9c4
-    style Admin fill:#ffccbc
-    style No_Auth fill:#e1f5ff
+    style Register fill:#2e7d32,color:#fff
+    style Login fill:#2e7d32,color:#fff
+    style Webhook fill:#2e7d32,color:#fff
+    style Auth fill:#f9a825,color:#000
+    style Admin fill:#e64a19,color:#fff
+    style No_Auth fill:#1565c0,color:#fff
 ```
 
 ---
@@ -459,9 +459,9 @@ graph TB
     P1_App -.Migration.-> P2_LB
     P2_LB -.Migration.-> P3_LB
     
-    style P1_App fill:#e8f5e9
-    style P2_LB fill:#fff9c4
-    style P3_LB fill:#ffccbc
+    style P1_App fill:#2e7d32,color:#fff
+    style P2_LB fill:#f9a825,color:#000
+    style P3_LB fill:#e64a19,color:#fff
 ```
 
 ---
@@ -494,16 +494,16 @@ flowchart TD
     ErrorHandler --> Logger
     Logger --> Response([Response])
     
-    style Start fill:#e1f5ff
-    style Response fill:#c8e6c9
-    style Reject1 fill:#ffcdd2
-    style Reject2 fill:#ffcdd2
-    style Reject3 fill:#ffcdd2
-    style Reject4 fill:#ffcdd2
-    style Reject5 fill:#ffcdd2
-    style Middleware fill:#fff9c4
-    style Handler fill:#f3e5f5
-    style BusinessLogic fill:#e8f5e9
+    style Start fill:#1565c0,color:#fff
+    style Response fill:#2e7d32,color:#fff
+    style Reject1 fill:#c62828,color:#fff
+    style Reject2 fill:#c62828,color:#fff
+    style Reject3 fill:#c62828,color:#fff
+    style Reject4 fill:#c62828,color:#fff
+    style Reject5 fill:#c62828,color:#fff
+    style Middleware fill:#f9a825,color:#000
+    style Handler fill:#7b1fa2,color:#fff
+    style BusinessLogic fill:#2e7d32,color:#fff
 ```
 
 ---
@@ -568,10 +568,10 @@ graph TD
     STRIPE --> PRISMA
     FEATURES --> PRISMA
     
-    style HANDLER fill:#f3e5f5
-    style JWT fill:#fff9c4
-    style PRISMA fill:#e8f5e9
-    style STRIPE fill:#ffccbc
+    style HANDLER fill:#7b1fa2,color:#fff
+    style JWT fill:#f9a825,color:#000
+    style PRISMA fill:#2e7d32,color:#fff
+    style STRIPE fill:#e64a19,color:#fff
 ```
 
 ---
@@ -590,16 +590,16 @@ flowchart LR
     DB3 --> LOG[Logger<br/>Log Event]
     LOG --> End([Response<br/>User + Tokens])
     
-    style Start fill:#e1f5ff
-    style End fill:#c8e6c9
-    style RL fill:#fff9c4
-    style V fill:#f3e5f5
-    style BC fill:#ffccbc
-    style JWT fill:#d1c4e9
-    style DB1 fill:#e8f5e9
-    style DB2 fill:#e8f5e9
-    style DB3 fill:#e8f5e9
-    style LOG fill:#b2dfdb
+    style Start fill:#1565c0,color:#fff
+    style End fill:#2e7d32,color:#fff
+    style RL fill:#f9a825,color:#000
+    style V fill:#7b1fa2,color:#fff
+    style BC fill:#e64a19,color:#fff
+    style JWT fill:#512da8,color:#fff
+    style DB1 fill:#2e7d32,color:#fff
+    style DB2 fill:#2e7d32,color:#fff
+    style DB3 fill:#2e7d32,color:#fff
+    style LOG fill:#00796b,color:#fff
 ```
 
 ---
@@ -672,12 +672,12 @@ flowchart TD
     ServerError --> Response
     Success --> Response
     
-    style Start fill:#e1f5ff
-    style Response fill:#c8e6c9
-    style BadRequest fill:#fff9c4
-    style Unauthorized fill:#ffccbc
-    style Forbidden fill:#ffccbc
-    style ServerError fill:#ffcdd2
+    style Start fill:#1565c0,color:#fff
+    style Response fill:#2e7d32,color:#fff
+    style BadRequest fill:#f9a825,color:#000
+    style Unauthorized fill:#e64a19,color:#fff
+    style Forbidden fill:#e64a19,color:#fff
+    style ServerError fill:#c62828,color:#fff
 ```
 
 ---
@@ -719,14 +719,14 @@ graph TB
     API -.-> QUEUE
     API -.-> MONITOR
     
-    style UI fill:#e1f5ff
-    style MW fill:#fff4e6
-    style API fill:#f3e5f5
-    style PG fill:#e8f5e9
-    style STRIPE fill:#fff9c4
-    style REDIS fill:#ffebee
-    style QUEUE fill:#fce4ec
-    style MONITOR fill:#e0f2f1
+    style UI fill:#1565c0,color:#fff
+    style MW fill:#f57c00,color:#fff
+    style API fill:#7b1fa2,color:#fff
+    style PG fill:#2e7d32,color:#fff
+    style STRIPE fill:#f9a825,color:#000
+    style REDIS fill:#c62828,color:#fff
+    style QUEUE fill:#c2185b,color:#fff
+    style MONITOR fill:#00796b,color:#fff
 ```
 
 ---
