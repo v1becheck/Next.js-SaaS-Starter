@@ -49,10 +49,10 @@ The architecture follows a **layered defense strategy** with clear boundaries:
                      │
         ┌────────────┼────────────┬────────────┐
         │            │            │            │
-┌───────▼────┐ ┌────▼────┐ ┌─────▼────┐ ┌────▼────┐
-│ PostgreSQL │ │ Stripe  │ │  Redis   │ │ Logger  │
-│  (Primary) │ │   API   │ │ (Future) │ │ Service │
-└────────────┘ └─────────┘ └──────────┘ └─────────┘
+┌───────▼────┐  ┌────▼────┐ ┌─────▼────┐  ┌────▼────┐
+│ PostgreSQL │  │ Stripe  │ │  Redis   │  │ Logger  │
+│  (Primary) │  │   API   │ │ (Future) │  │ Service │
+└────────────┘  └─────────┘ └──────────┘  └─────────┘
 ```
 
 ### Core Architectural Decisions
