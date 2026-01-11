@@ -130,6 +130,86 @@ graph TB
 
 ### Core Architectural Decisions
 
+#### 0. Full-Stack Next.js Architecture (Monolithic vs. Separated)
+
+**Decision**: Use Next.js for both frontend (App Router) and backend (API Routes) in a single codebase.
+
+**Rationale**:
+- **Unified codebase**: Shared TypeScript types, single deployment pipeline, easier development
+- **Type safety**: End-to-end type safety from database to frontend
+- **Developer experience**: Faster iteration, unified tooling, easier debugging
+- **Cost efficiency**: Single deployment reduces infrastructure overhead (especially at early stage)
+- **Next.js optimizations**: Server Components, Edge Middleware, built-in optimizations
+- **Scalability**: Serverless-ready, can scale horizontally with load balancers
+
+**Architecture Structure**:
+```
+Frontend:  app/page.tsx, app/dashboard/page.tsx (React Server Components)
+Backend:   app/api/auth/login/route.ts (API Routes)
+Middleware: middleware.ts (Edge Runtime - JWT validation, RBAC)
+Business Logic: lib/ (shared utilities, auth, stripe, etc.)
+```
+
+**Tradeoffs**:
+
+✅ **Pros**:
+- **Faster development**: No API contract negotiation, shared types
+- **Better DX**: Single codebase, unified tooling, easier debugging
+- **Type safety**: End-to-end TypeScript from DB → API → Frontend
+- **Cost-effective**: Single deployment, serverless scaling
+- **Edge capabilities**: Middleware runs at edge (low latency, globally distributed)
+- **Migration path**: Business logic in `lib/` can be extracted to microservices later
+
+❌ **Cons**:
+- **Tight coupling**: Frontend and backend in same codebase (can't scale independently at code level)
+- **Deployment coupling**: Frontend changes require full redeployment
+- **Team coordination**: Frontend/backend teams work in same repo (merge conflicts possible)
+- **Runtime limitations**: API routes run in Node.js (not as fast as dedicated Go/Rust backend)
+- **Technology lock-in**: Both sides must use Node.js/TypeScript
+
+**Scalability Strategy**:
+
+This architecture scales well for SaaS applications (0-1M+ users):
+
+- **Phase 1 (0-10K)**: Single Next.js instance ✅
+- **Phase 2 (10K-100K)**: Multiple Next.js instances + Load Balancer ✅
+- **Phase 3 (100K-500K)**: Horizontal scaling + Read replicas ✅
+- **Phase 4 (500K-1M+)**: Optional microservices extraction
+
+**Key Design Decisions That Enable Scalability**:
+
+1. **Stateless API routes**: No server-side sessions, uses JWT (horizontal scaling ready)
+2. **Edge Middleware**: Runs at edge (fast, distributed globally)
+3. **Database abstraction**: Prisma makes read replicas easy to add
+4. **Rate limiting abstraction**: Can switch from in-memory to Redis without code changes
+5. **Clear separation**: Business logic in `lib/` can be extracted to separate services
+
+**When to Consider Separation**:
+
+Consider separating frontend and backend when:
+
+1. **Different scaling needs**: Frontend needs global CDN, backend needs specific regions
+2. **Different technologies**: Backend needs Go/Python/Rust for performance
+3. **Large teams**: >20 developers, clear frontend/backend team boundaries
+4. **Microservices**: Multiple backend services, frontend consumes multiple APIs
+5. **Performance requirements**: Need sub-10ms API latency (dedicated backend)
+
+**Real-World Examples**:
+
+- **Vercel**: Uses Next.js full-stack for their own platform
+- **Linear**: SaaS app with Next.js full-stack (handles millions of requests)
+- **Turborepo**: Monorepo tooling with Next.js full-stack
+
+**Production Impact**: 
+
+- ✅ **0-1M users**: Excellent fit, cost-effective, scalable
+- ⚠️ **1M+ users**: Still viable, but consider microservices for specific high-traffic endpoints
+- ✅ **Migration path**: Architecture designed for easy extraction (business logic in `lib/`)
+
+**Code Quality**: Clear separation of concerns (`lib/` folder), making future extraction straightforward if needed.
+
+---
+
 #### 1. Custom JWT Authentication (vs. NextAuth)
 
 **Decision**: Implemented custom JWT authentication with refresh token rotation.
