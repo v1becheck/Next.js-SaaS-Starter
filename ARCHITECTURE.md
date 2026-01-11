@@ -188,9 +188,9 @@ This document provides detailed architecture descriptions for generating system 
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { user, accessToken, refreshToken }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { user, accessToken, refreshToken }
+        └─────────┘
 ```
 
 ### Login Flow
@@ -237,9 +237,9 @@ This document provides detailed architecture descriptions for generating system 
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { user, accessToken, refreshToken }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { user, accessToken, refreshToken }
+        └─────────┘
 ```
 
 ### Token Refresh Flow (Critical Security)
@@ -278,9 +278,9 @@ This document provides detailed architecture descriptions for generating system 
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { accessToken, refreshToken }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { accessToken, refreshToken }
+        └─────────┘
 ```
 
 ### Protected Request Flow
@@ -318,9 +318,9 @@ This document provides detailed architecture descriptions for generating system 
 └────────────┬────────────────────────┘
              │
              ▼
-┌─────────┐
-│ Client  │ ← { users: [...], pagination }
-└─────────┘
+        ┌─────────┐
+        │ Client  │ ← { users: [...], pagination }
+        └─────────┘
 ```
 
 ---
