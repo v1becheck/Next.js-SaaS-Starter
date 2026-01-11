@@ -21,31 +21,31 @@ This document provides detailed architecture descriptions for generating system 
 │                    HTTPS + JWT Bearer Tokens                    │
 └────────────────────────────┼────────────────────────────────────┘
                              │
-┌────────────────────────────▼─────────────────────────────────────┐
-│                    NEXT.JS APPLICATION LAYER                     │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │              EDGE MIDDLEWARE (middleware.ts)                │ │
-│  │  • JWT Token Validation (stateless)                         │ │
-│  │  • RBAC Enforcement (role checks)                           │ │
-│  │  • Request Context Injection (x-user-id, x-user-role)       │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                              │                                   │
-│  ┌───────────────────────────▼─────────────────────────────────┐ │
-│  │              API ROUTE HANDLER (createApiHandler)           │ │
-│  │  • Rate Limiting (per-route config)                         │ │
-│  │  • Input Validation (Zod schemas)                           │ │
-│  │  • Error Handling (custom error classes)                    │ │
-│  │  • Request Logging (structured, with duration)              │ │
-│  └───────────────────────────┬─────────────────────────────────┘ │
-│                              │                                   │
-│  ┌───────────────────────────▼─────────────────────────────────┐ │
-│  │                    BUSINESS LOGIC LAYER                     │ │
-│  │  • Authentication Logic (lib/auth.ts)                       │ │
-│  │  • RBAC Logic (lib/rbac.ts)                                 │ │
-│  │  • Feature Flags (lib/feature-flags.ts)                     │ │
-│  │  • Stripe Integration (lib/stripe.ts)                       │ │
-│  └─────────────────────────────┬───────────────────────────────┘ │
-└────────────────────────────────┼─────────────────────────────────┘
+┌────────────────────────────▼────────────────────────────────────┐
+│                    NEXT.JS APPLICATION LAYER                    │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │              EDGE MIDDLEWARE (middleware.ts)               │ │
+│  │  • JWT Token Validation (stateless)                        │ │
+│  │  • RBAC Enforcement (role checks)                          │ │
+│  │  • Request Context Injection (x-user-id, x-user-role)      │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                              │                                  │
+│  ┌───────────────────────────▼────────────────────────────────┐ │
+│  │              API ROUTE HANDLER (createApiHandler)          │ │
+│  │  • Rate Limiting (per-route config)                        │ │
+│  │  • Input Validation (Zod schemas)                          │ │
+│  │  • Error Handling (custom error classes)                   │ │
+│  │  • Request Logging (structured, with duration)             │ │
+│  └───────────────────────────┬────────────────────────────────┘ │
+│                              │                                  │
+│  ┌───────────────────────────▼────────────────────────────────┐ │
+│  │                    BUSINESS LOGIC LAYER                    │ │
+│  │  • Authentication Logic (lib/auth.ts)                      │ │
+│  │  • RBAC Logic (lib/rbac.ts)                                │ │
+│  │  • Feature Flags (lib/feature-flags.ts)                    │ │
+│  │  • Stripe Integration (lib/stripe.ts)                      │ │
+│  └─────────────────────────────┬──────────────────────────────┘ │
+└────────────────────────────────┼────────────────────────────────┘
                                  │
         ┌────────────────────────┼──────────────────────┐
         │                        │                      │
@@ -640,8 +640,8 @@ Client          Middleware        API Handler      Business Logic    Database   
 │  └───────────────────────────────────┘  │
 └──────────────────┬──────────────────────┘
                    │
-         ┌─────────┴─────────┐
-         │                     │
+         ┌─────────┴──────────┐
+         │                    │
 ┌────────▼────────┐  ┌────────▼────────┐
 │   PostgreSQL    │  │    Stripe       │
 │   (Primary)     │  │     API         │
